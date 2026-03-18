@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>星测Star-t · 副业天赋测评</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #f5f0ff 0%, #e9e1ff 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+        }
+        #app {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -12px rgba(98, 0, 255, 0.25);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+        }
+        .watermark-header {
+            text-align: center;
+            padding: 16px 0 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6c4eff;
+            letter-spacing: 1px;
+            border-bottom: 1px dashed rgba(108, 78, 255, 0.2);
+            background: rgba(255,255,255,0.6);
+        }
+        .watermark-header span, .watermark-footer span {
+            background: rgba(108, 78, 255, 0.1);
+            padding: 4px 12px;
+            border-radius: 40px;
+        }
+        .watermark-footer {
+            text-align: center;
+            padding: 12px 0 16px;
+            font-size: 13px;
+            font-weight: 400;
+            color: #8f7ae5;
+            border-top: 1px dashed rgba(108, 78, 255, 0.2);
+            background: rgba(255,255,255,0.6);
+        }
+        .content {
+            padding: 20px 20px 10px;
+            min-height: 500px;
+            transition: all 0.3s ease;
+        }
+        .welcome-screen, .result-screen {
+            animation: fadeIn 0.5s;
+        }
+        .welcome-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #2d1b4e;
+            margin: 16px 0 8px;
+            line-height: 1.2;
+        }
+        .welcome-sub {
+            font-size: 15px;
+            color: #5b4b7a;
+            margin-bottom: 24px;
+            border-left: 4px solid #6c4eff;
+            padding-left: 16px;
+            background: #f2eeff;
+            border-radius: 0 12px 12px 0;
+            line-height: 1.5;
+        }
+        .desc-box {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.03);
+            border: 1px solid #f0eaff;
+        }
+        .desc-box p {
+            margin-bottom: 12px;
+            font-size: 15px;
+            color: #3b2e5a;
+        }
+        .btn-start {
+            background: #6c4eff;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 18px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 60px;
+            margin: 24px 0 10px;
+            box-shadow: 0 10px 25px -5px #6c4eff;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn-start:active {
+            transform: scale(0.97);
+            background: #5a3ee6;
+        }
+        .question-card {
+            background: white;
+            border-radius: 28px;
+            padding: 24px 18px;
+            box-shadow: 0 8px 20px rgba(98, 0, 255, 0.1);
+            margin: 10px 0 20px;
+            border: 1px solid white;
+        }
+        .q-num {
+            font-size: 14px;
+            color: #8f7ae5;
+            font-weight: 500;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .q-num span:last-child {
+            background: #f0eaff;
+            padding: 4px 12px;
+            border-radius: 40px;
+            color: #4a2d9c;
+        }
+        .q-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1f0f3f;
+            line-height: 1.4;
+            margin-bottom: 28px;
+        }
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .option-item {
+            background: #f8f5ff;
+            border: 1.5px solid transparent;
+            border-radius: 40px;
+            padding: 14px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.15s;
+            cursor: pointer;
+            border-color: #e9deff;
+        }
+        .option-item.selected {
+            background: #6c4eff15;
+            border-color: #6c4eff;
+            box-shadow: 0 4px 10px rgba(108,78,255,0.15);
+        }
+        .option-label {
+            font-weight: 500;
+            color: #3b2e5a;
+            font-size: 16px;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .nav-btn {
+            flex: 1;
+            background: white;
+            border: 1px solid #dcd0ff;
+            border-radius: 60px;
+            padding: 16px 0;
+            font-size: 16px;
+            font-weight: 500;
+            color: #4a2d9c;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .nav-btn:active {
+            background: #f0eaff;
+        }
+        .nav-btn.primary {
+            background: #6c4eff;
+            border: none;
+            color: white;
+            box-shadow: 0 6px 14px #b4a0ff;
+        }
+        .result-screen {
+            padding: 8px 0;
+        }
+        .result-badge {
+            background: #fff2e0;
+            border-radius: 40px;
+            padding: 30px 20px;
+            text-align: center;
+            margin: 16px 0;
+            background: linear-gradient(125deg, #fff3eb, #f0eaff);
+        }
+        .result-type {
+            font-size: 40px;
+            font-weight: 800;
+            color: #3a1f6a;
+            margin-bottom: 8px;
+        }
+        .result-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2d1b4e;
+        }
+        .result-desc-box {
+            background: white;
+            border-radius: 24px;
+            padding: 22px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+        .result-desc-box h3 {
+            font-size: 20px;
+            margin: 20px 0 16px;
+            color: #321f64;
+            border-left: 6px solid #6c4eff;
+            padding-left: 14px;
+        }
+        .result-desc-box h3:first-of-type {
+            margin-top: 0;
+        }
+        .direction-list {
+            margin: 16px 0;
+            padding-left: 20px;
+        }
+        .direction-list li {
+            margin-bottom: 12px;
+            color: #3d2e5a;
+        }
+        .book-list {
+            background: #f9f6ff;
+            border-radius: 20px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+        .book-item {
+            margin-bottom: 16px;
+            border-bottom: 1px dashed #d9ccff;
+            padding-bottom: 12px;
+        }
+        .book-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .book-title {
+            font-weight: 600;
+            color: #321f64;
+            font-size: 15px;
+        }
+        .book-desc {
+            font-size: 13px;
+            color: #6a5c8a;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+        .quote-box {
+            background: #efeaff;
+            border-radius: 16px;
+            padding: 18px;
+            margin: 20px 0;
+            font-style: italic;
+            color: #3e2b6b;
+            font-size: 15px;
+            border-left: 4px solid #6c4eff;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin: 24px 0 12px;
+        }
+        .btn-secondary {
+            flex: 1;
+            background: white;
+            border: 1.5px solid #6c4eff;
+            border-radius: 60px;
+            padding: 16px 0;
+            font-weight: 600;
+            color: #6c4eff;
+            cursor: pointer;
+            text-align: center;
+        }
+        .btn-share {
+            background: #6c4eff;
+            color: white;
+            border: none;
+            border-radius: 60px;
+            padding: 16px 0;
+            font-weight: 600;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+        }
+        .disclaimer {
+            font-size: 11px;
+            color: #a294c0;
+            text-align: center;
+            margin: 16px 0 10px;
+            padding: 0 10px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0d6ff;
+            border-radius: 8px;
+            margin: 20px 0 8px;
+        }
+        .progress-fill {
+            height: 8px;
+            background: #6c4eff;
+            border-radius: 8px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .hidden {
+            display: none !important;
+        }
+        /* 海报截图区域样式 */
+        #poster-capture-area {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            z-index: -100;
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="watermark-header"><span>⭐ 星测Star-t · 天赋挖掘 ⭐</span></div>
+        <div class="content" id="mainContent"></div>
+        <div class="watermark-footer"><span>✨ 星测Star-t · 让天赋发光 ✨</span></div>
+    </div>
+
+    <!-- 隐藏的海报截图区域 -->
+    <div id="poster-capture-area"></div>
+
+    <script>
+        (function() {
+            // 题目数据
+            const questions = [
+                "周末空闲时，我喜欢动手捣鼓点东西（修理、组装、手工等）",
+                "我喜欢研究事物背后的原理，经常问“为什么”",
+                "我对美的东西特别敏感，容易被艺术、设计、音乐打动",
+                "和朋友相处时，我往往是倾听者和安慰者的角色",
+                "我喜欢说服别人接受我的观点",
+                "我喜欢按计划、按流程做事，讨厌混乱",
+                "比起脑力劳动，我更喜欢身体力行的活动",
+                "我喜欢一个人安静地看书、思考或研究问题",
+                "我有丰富的想象力，经常冒出各种创意",
+                "我擅长察言观色，能敏锐感知别人的情绪",
+                "我动手能力强，学用工具很快",
+                "我喜欢分析问题，能很快抓住事情的关键",
+                "我审美不错，朋友常夸我穿搭/拍照好看",
+                "我善于和人打交道，陌生人也能聊得来",
+                "我有领导力，喜欢组织协调一群人做事",
+                "我做事细心，能把繁琐的事务处理好",
+                "我喜欢户外活动，坐不住办公室",
+                "我喜欢钻研，一个问题能琢磨很久",
+                "我喜欢表达，写作、演讲或拍视频都愿意尝试",
+                "我乐于助人，帮到别人会让我很开心",
+                "如果做副业，我更愿意做跟手艺/产品相关的事情",
+                "如果做副业，我更愿意做知识输出类（咨询、教学、写作）",
+                "如果做副业，我更愿意做创意类（设计、摄影、内容创作）",
+                "如果做副业，我更愿意做服务类（社群运营、陪伴、咨询）",
+                "如果做副业，我更愿意做销售类（带货、代理、团长）",
+                "如果做副业，我更愿意做执行类（整理收纳、数据录入、代运营）",
+                "我希望副业能让我接触新鲜事物，而不是重复劳动",
+                "我希望副业能让我帮助别人，获得成就感",
+                "我希望副业能让我发挥影响力，被人认可",
+                "我希望副业是稳定的、可预期的，不要太折腾"
+            ];
+
+            const dimMap = [
+                'R','I','A','S','E','C','R','I','A','S',
+                'R','I','A','S','E','C','R','I','A','S',
+                'R','I','A','S','E','C','E','S','E','C'
+            ];
+
+            const dimNames = {
+                'R': '实际型 (R)',
+                'I': '研究型 (I)',
+                'A': '艺术型 (A)',
+                'S': '社会型 (S)',
+                'E': '企业型 (E)',
+                'C': '常规型 (C)'
+            };
+
+            // 扩展结果：6个副业方向 + 单独起步建议 + 书单 + 金句
+            const resultDetails = {
+                'R': {
+                    title: '实际型 · 动手天赋',
+                    desc: '你属于“坐不住”的人，喜欢动手操作，做事踏实务实。你不喜欢纸上谈兵，更喜欢实实在在做出东西来。',
+                    directions: [
+                        '手作定制：穿戴甲、手机壳、香薰蜡烛、手工饰品',
+                        '技能服务：上门喂养、整理收纳、家电清洗、手机维修',
+                        '烘焙私房：蛋糕定制、低卡餐盒、宠物零食、家庭烘焙',
+                        '园艺/绿植：多肉养护、阳台种菜、绿植租赁',
+                        '木工/皮具：手工木作、皮具定制、饰品打磨',
+                        '改装/维修：自行车调试、小家电改装、旧物翻新'
+                    ],
+                    advice: '📌 起步建议：先在小红书/闲鱼发你的手作过程或成品图，积累第一批种子用户。定价从9.9元小件开始，用“成品展示+制作过程”的内容吸引同好，做熟后再推出定制款。',
+                    books: [
+                        { title: '《匠人精神》', author: '秋山利辉', desc: '一流工匠的育成法则，告诉你如何把一件事做到极致。' },
+                        { title: '《零浪费生活》', author: '安妮·玛丽·博诺', desc: '教你用手作和收纳让生活更可持续，顺便变现。' },
+                        { title: '《清单革命》', author: '阿图·葛文德', desc: '如何用清单让复杂的手工/服务不出错。' },
+                        { title: '《手作的温度》', author: '铃木淳子', desc: '日本手作职人的30年心得，每一件作品都有灵魂。' },
+                        { title: '《破烂儿改造笔记》', author: '林十之', desc: '小众但惊艳，旧物翻新的创意灵感库。' }
+                    ],
+                    quote: '“用手思考，用心制作。每一道痕迹都是时间的礼物。” —— 铃木淳子《手作的温度》'
+                },
+                'I': {
+                    title: '研究型 · 分析思考',
+                    desc: '你喜欢琢磨问题，对事物有深度理解，适合做需要动脑的事情。你享受钻研的过程，能把复杂的事情讲清楚。',
+                    directions: [
+                        '知识付费：把你的专业知识做成课程/文档/电子书',
+                        '咨询顾问：职场咨询、考研咨询、育儿咨询、情感分析',
+                        '数据分析：Excel/PPT接单、数据清洗、市场调研',
+                        '写作投稿：科普文、行业分析、深度内容、文案代写',
+                        '信息整理：读书笔记拆解、行业报告精读、知识库搭建',
+                        '策略策划：活动方案、商业计划书、项目申报'
+                    ],
+                    advice: '📌 起步建议：把你最懂的那个领域写成干货，每周更新2篇，积累10篇后整理成文档卖9.9-19.9元。在知乎/小红书建立“专家人设”，用深度内容吸引精准粉丝。',
+                    books: [
+                        { title: '《穷查理宝典》', author: '查理·芒格', desc: '多元思维模型的集大成者，教你如何像智者一样分析问题。' },
+                        { title: '《思考，快与慢》', author: '丹尼尔·卡尼曼', desc: '诺贝尔奖得主带你认识思维的捷径与陷阱。' },
+                        { title: '《金字塔原理》', author: '芭芭拉·明托', desc: '逻辑表达与清晰写作的圣经。' },
+                        { title: '《模型思维》', author: '斯科特·佩奇', desc: '24种思维模型，让你看透复杂世界的底层逻辑。' },
+                        { title: '《拆解》', author: '刘十九', desc: '小众但硬核，手把手教你拆解任何复杂问题。' }
+                    ],
+                    quote: '“如果你不能简单地解释它，说明你还没有真正理解它。” —— 查理·芒格《穷查理宝典》'
+                },
+                'A': {
+                    title: '艺术型 · 审美创意',
+                    desc: '你对美有敏感度，喜欢表达，有丰富的想象力。你不喜欢循规蹈矩，渴望用自己的方式展现世界。',
+                    directions: [
+                        '内容创作：穿搭博主、美妆博主、摄影博主、vlog博主',
+                        '设计接单：海报设计、PPT美化、logo设计、插画接单',
+                        '手作文创：手账素材、贴纸设计、手机壳定制、头像约稿',
+                        '自媒体：做你擅长领域的博主（审美是你的核心竞争力）',
+                        '视觉营销：电商详情页设计、小红书封面定制',
+                        '艺术疗愈：曼陀罗绘画、拼贴诗、情绪插画'
+                    ],
+                    advice: '📌 起步建议：每天发一张你的作品/穿搭，坚持30天，用“审美”作为你的差异化标签。多参与小红书话题活动，@官方账号增加曝光。',
+                    books: [
+                        { title: '《赖声川的创意学》', author: '赖声川', desc: '创意不是天赋，是可以习得的方法论。' },
+                        { title: '《写给大家看的设计书》', author: '罗宾·威廉姆斯', desc: '四大原则让你的设计立马专业。' },
+                        { title: '《艺术的慰藉》', author: '阿兰·德波顿', desc: '艺术如何抚慰人心，给你创作的内核。' },
+                        { title: '《美学的散步》', author: '宗白华', desc: '中国古典美学入门，提升审美底蕴。' },
+                        { title: '《视觉治愈》', author: '陈丹青', desc: '小众但深刻，用视觉语言疗愈现代人的焦虑。' }
+                    ],
+                    quote: '“艺术不是你所看到的，而是你让别人看到的。” —— 赖声川《赖声川的创意学》'
+                },
+                'S': {
+                    title: '社会型 · 共情社交',
+                    desc: '你喜欢和人打交道，善于理解别人，乐于助人。你是天生的倾听者，别人愿意跟你倾诉心事。',
+                    directions: [
+                        '情感类：倾听师、情感咨询、树洞陪伴、心理疏导',
+                        '社群类：团购团长、社群运营、资源对接、活动策划',
+                        '教育类：家教、陪练、技能教学、儿童陪伴',
+                        '服务类：婚介、红娘、相亲活动组织',
+                        '宠物陪伴：上门喂猫、遛狗、宠物寄养',
+                        '老年服务：陪诊、陪聊、老年大学助教'
+                    ],
+                    advice: '📌 起步建议：从免费帮朋友解决问题开始，积累案例。闲鱼挂单“倾听陪伴”5元/半小时，把好评截图作为信任背书。',
+                    books: [
+                        { title: '《非暴力沟通》', author: '马歇尔·卢森堡', desc: '爱的语言，让倾听和表达更有温度。' },
+                        { title: '《人性的弱点》', author: '戴尔·卡耐基', desc: '经典的人际交往指南。' },
+                        { title: '《共情的力量》', author: '亚瑟·乔拉米卡利', desc: '情商高不是会说话，是能读懂人心。' },
+                        { title: '《柔软的社交》', author: '李松蔚', desc: '心理咨询师教你如何建立深度关系。' },
+                        { title: '《陪伴式服务》', author: '日野佳惠子', desc: '日本银发经济第一线，如何把陪伴做成事业。' }
+                    ],
+                    quote: '“倾听不是为了回答，而是为了理解。” —— 马歇尔·卢森堡《非暴力沟通》'
+                },
+                'E': {
+                    title: '企业型 · 说服领导',
+                    desc: '你有野心，喜欢挑战，善于说服别人。你不甘平庸，渴望影响他人，适合做带销售性质的事情。',
+                    directions: [
+                        '带货类：小红书买手、直播带货、好物分享、团购团长',
+                        '销售类：代理、分销、保险/房产经纪、课程推广',
+                        '创业类：小项目试水、资源整合、二手倒卖、信息差套利',
+                        '培训类：销售技巧培训、口才训练、演讲辅导',
+                        '招商类：地推、渠道拓展、商务谈判',
+                        '个人IP：打造行业专家人设，知识付费变现'
+                    ],
+                    advice: '📌 起步建议：先从闲鱼卖闲置开始，练手感。把你的“会说话”变现，做你熟悉领域的带货，用“测评+种草”的方式在小红书积累信任。',
+                    books: [
+                        { title: '《影响力》', author: '罗伯特·西奥迪尼', desc: '说服力的六大原则，让人无法对你说不。' },
+                        { title: '《疯传》', author: '乔纳·伯杰', desc: '让你的产品和思想像病毒一样传播。' },
+                        { title: '《从0到1》', author: '彼得·蒂尔', desc: '垄断思维，教你做有壁垒的生意。' },
+                        { title: '《销售洗脑》', author: '哈里·弗里德曼', desc: '洞察顾客心理，把任何东西卖给任何人。' },
+                        { title: '《弱传播》', author: '邹振东', desc: '小众但颠覆，舆论世界的生存法则。' }
+                    ],
+                    quote: '“人们买的不是产品，而是对更好的自己的向往。” —— 乔纳·伯杰《疯传》'
+                },
+                'C': {
+                    title: '常规型 · 执行细致',
+                    desc: '你做事有条理，喜欢按规矩来，适合做需要耐心和细心的事情。你是大家眼中的“靠谱”人选。',
+                    directions: [
+                        '技能接单：Excel/PPT制作、数据录入、文档整理、排版',
+                        '代运营：小红书/公众号排版、社群日常维护、后台管理',
+                        '整理收纳：上门整理、衣橱整理、空间规划、搬家打包',
+                        '行政外包：会议记录、行程安排、邮件处理、档案管理',
+                        '校对/审核：文章校对、合同审查、数据质检',
+                        '时间管理服务：日程规划、代办提醒、习惯监督'
+                    ],
+                    advice: '📌 起步建议：把你的“靠谱”变成产品，去猪八戒/闲鱼挂单接活，从19.9元的小单开始积累口碑。做标准化服务包（比如“小红书排版套餐月卡”），提高复购。',
+                    books: [
+                        { title: '《搞定》', author: '戴维·艾伦', desc: 'GTD时间管理经典，让执行变得从容。' },
+                        { title: '《断舍离》', author: '山下英子', desc: '收纳不仅是整理物品，更是整理人生。' },
+                        { title: '《清单革命》', author: '阿图·葛文德', desc: '用清单避免错误，让复杂工作变简单。' },
+                        { title: '《极简工作》', author: '约根·库尔兹', desc: '德国效率专家的高效办公法则。' },
+                        { title: '《整理情绪的力量》', author: '有川真由美', desc: '不仅整理房间，还要整理心情。' }
+                    ],
+                    quote: '“秩序是天才的仆人，也是常人的救生圈。” —— 约根·库尔兹《极简工作》'
+                }
+            };
+
+            const compoundAdvice = {
+                'R+A': '手作教学、DIY体验课、手工材料包',
+                'I+E': '商业分析、行业咨询、创业顾问',
+                'A+S': '艺术疗愈、绘画心理、情感插画',
+                'S+E': '社群团长、资源对接、活动主办',
+                'C+A': '排版设计、PPT美化、手账模板',
+                'R+I': '产品测评、科技DIY、手工教程'
+            };
+
+            let currentScreen = 'welcome';
+            let currentQIndex = 0;
+            let answers = new Array(30).fill(null);
+            let currentResultDim = 'R';
+            let currentResultDetail = null;
+
+            const contentDiv = document.getElementById('mainContent');
+            const posterArea = document.getElementById('poster-capture-area');
+
+            function render() {
+                if (currentScreen === 'welcome') renderWelcome();
+                else if (currentScreen === 'question') renderQuestion();
+                else if (currentScreen === 'result') renderResult();
+            }
+
+            function renderWelcome() {
+                let html = `
+                    <div class="welcome-screen">
+                        <div class="welcome-title">🔮 30道题，测出你最赚钱的副业方向</div>
+                        <div class="welcome-sub">很多人想做副业却不知道从哪入手。其实不是你能力不行，而是你的天赋没被挖掘。</div>
+                        <div class="desc-box">
+                            <p>📋 本测试改编自权威的霍兰德职业倾向测验，共30题。</p>
+                            <p>⚡ 凭第一感觉选择，不要反复斟酌。</p>
+                            <p style="margin-bottom:0">💡 每题请选择最符合你实际情况的选项</p>
+                        </div>
+                        <button class="btn-start" id="startTestBtn">开始测试</button>
+                        <div style="height: 10px;"></div>
+                    </div>
+                `;
+                contentDiv.innerHTML = html;
+                document.getElementById('startTestBtn')?.addEventListener('click', () => {
+                    currentScreen = 'question';
+                    currentQIndex = 0;
+                    answers.fill(null);
+                    render();
+                });
+            }
+
+            function renderQuestion() {
+                if (currentQIndex >= questions.length) {
+                    calculateAndShowResult();
+                    return;
+                }
+                const q = questions[currentQIndex];
+                const selectedVal = answers[currentQIndex];
+                const progress = ((currentQIndex) / questions.length) * 100;
+
+                // 选项顺序：非常同意(5) -> 同意(4) -> 中立(3) -> 不同意(2) -> 非常不同意(1)
+                const opts = ['非常同意', '同意', '中立', '不同意', '非常不同意'];
+                const vals = [5,4,3,2,1];
+                let optionsHtml = '';
+                for (let i=0; i<opts.length; i++) {
+                    const selectedClass = (selectedVal === vals[i]) ? 'selected' : '';
+                    optionsHtml += `
+                        <div class="option-item ${selectedClass}" data-val="${vals[i]}">
+                            <span class="option-label">${opts[i]}</span>
+                        </div>
+                    `;
+                }
+
+                let html = `
+                    <div class="question-screen">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progress}%;"></div>
+                        </div>
+                        <div class="question-card">
+                            <div class="q-num">
+                                <span>第 ${currentQIndex+1}/${questions.length} 题</span>
+                            </div>
+                            <div class="q-text">${q}</div>
+                            <div class="options-grid" id="optionsContainer">
+                                ${optionsHtml}
+                            </div>
+                            <div class="nav-buttons">
+                                ${currentQIndex > 0 ? '<button class="nav-btn" id="prevBtn">← 上一题</button>' : '<div></div>'}
+                                ${currentQIndex < questions.length-1 ? 
+                                    '<button class="nav-btn primary" id="nextBtn">下一题 →</button>' : 
+                                    '<button class="nav-btn primary" id="submitBtn">提交 查看结果</button>'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                contentDiv.innerHTML = html;
+
+                document.querySelectorAll('.option-item').forEach(opt => {
+                    opt.addEventListener('click', (e) => {
+                        const val = parseInt(opt.dataset.val, 10);
+                        answers[currentQIndex] = val;
+                        document.querySelectorAll('.option-item').forEach(o => o.classList.remove('selected'));
+                        opt.classList.add('selected');
+                        setTimeout(() => {
+                            if (currentQIndex < questions.length - 1) {
+                                currentQIndex++;
+                                render();
+                            }
+                        }, 200);
+                    });
+                });
+
+                document.getElementById('prevBtn')?.addEventListener('click', () => {
+                    if (currentQIndex > 0) {
+                        currentQIndex--;
+                        render();
+                    }
+                });
+                document.getElementById('nextBtn')?.addEventListener('click', () => {
+                    if (answers[currentQIndex] === null) {
+                        alert('请先选择本题的选项');
+                        return;
+                    }
+                    if (currentQIndex < questions.length-1) {
+                        currentQIndex++;
+                        render();
+                    }
+                });
+                document.getElementById('submitBtn')?.addEventListener('click', () => {
+                    if (answers[currentQIndex] === null) {
+                        alert('请先选择本题的选项');
+                        return;
+                    }
+                    calculateAndShowResult();
+                });
+            }
+
+            function calculateAndShowResult() {
+                const dimScore = { 'R':0, 'I':0, 'A':0, 'S':0, 'E':0, 'C':0 };
+                for (let i=0; i<answers.length; i++) {
+                    if (answers[i] !== null) {
+                        dimScore[dimMap[i]] += answers[i];
+                    }
+                }
+                let maxDim = 'R';
+                let maxScore = dimScore['R'];
+                for (let d in dimScore) {
+                    if (dimScore[d] > maxScore) {
+                        maxScore = dimScore[d];
+                        maxDim = d;
+                    }
+                }
+                let closeDims = [];
+                for (let d in dimScore) {
+                    if (Math.abs(dimScore[d] - maxScore) <= 3) closeDims.push(d);
+                }
+                closeDims.sort((a,b) => dimScore[b] - dimScore[a]);
+                const primary = closeDims[0];
+                const secondary = closeDims.length > 1 ? closeDims[1] : null;
+                
+                currentResultDim = primary;
+                currentResultDetail = resultDetails[primary] || resultDetails['R'];
+
+                let compoundText = '';
+                if (secondary && primary !== secondary) {
+                    const key1 = primary+'+'+secondary;
+                    const key2 = secondary+'+'+primary;
+                    if (compoundAdvice[key1]) compoundText = `✨ 复合推荐：${compoundAdvice[key1]}`;
+                    else if (compoundAdvice[key2]) compoundText = `✨ 复合推荐：${compoundAdvice[key2]}`;
+                }
+
+                // 生成书单HTML
+                let booksHtml = '';
+                currentResultDetail.books.forEach(book => {
+                    booksHtml += `
+                        <div class="book-item">
+                            <div class="book-title">📖 ${book.title} - ${book.author}</div>
+                            <div class="book-desc">${book.desc}</div>
+                        </div>
+                    `;
+                });
+
+                let dirList = currentResultDetail.directions.map(d => `<li>🔹 ${d}</li>`).join('');
+
+                let html = `
+                    <div class="result-screen">
+                        <div class="result-badge">
+                            <div class="result-type">${primary}</div>
+                            <div class="result-title">${currentResultDetail.title}</div>
+                        </div>
+                        <div class="result-desc-box">
+                            <h3>🧠 你的天赋解析</h3>
+                            <p style="margin-bottom: 20px;">${currentResultDetail.desc}</p>
+                            
+                            <h3>🚀 适合副业方向（6个）</h3>
+                            <ul class="direction-list">${dirList}</ul>
+                            
+                            <h3>💡 起步建议</h3>
+                            <p style="background: #f6f3ff; padding: 16px; border-radius: 20px;">${currentResultDetail.advice}</p>
+                            
+                            ${compoundText ? '<p style="margin-top:16px;background:#efeaff;padding:12px;border-radius:20px;">'+compoundText+'</p>' : ''}
+                            
+                            <h3>📚 专属书单（5本）</h3>
+                            <div class="book-list">${booksHtml}</div>
+                            
+                            <h3>✨ 专属金句</h3>
+                            <div class="quote-box">“${currentResultDetail.quote}”</div>
+                        </div>
+                        
+                        <div class="btn-group">
+                            <button class="btn-secondary" id="retestBtn">🔄 重新测试</button>
+                            <button class="btn-share" id="sharePosterBtn">📸 生成海报</button>
+                        </div>
+                        <div class="disclaimer">
+                            ⚠️ 免责声明：本测试结果仅供参考，旨在启发自我探索。每个人的天赋都是独特的，请结合自身实际情况理性选择。
+                        </div>
+                    </div>
+                `;
+                contentDiv.innerHTML = html;
+                currentScreen = 'result';
+
+                document.getElementById('retestBtn')?.addEventListener('click', ()=>{
+                    currentScreen = 'welcome';
+                    answers.fill(null);
+                    render();
+                });
+
+                document.getElementById('sharePosterBtn')?.addEventListener('click', generatePoster);
+            }
+
+            // 生成海报并保存
+            async function generatePoster() {
+                const primary = currentResultDim;
+                const detail = currentResultDetail;
+                
+                // 构建海报HTML
+                const posterHtml = `
+                    <div style="background: white; width: 340px; padding: 24px; border-radius: 32px; font-family: system-ui; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+                        <div style="text-align: center; margin-bottom: 16px;">
+                            <span style="background: #6c4eff10; padding: 8px 20px; border-radius: 40px; color: #6c4eff; font-weight: 600;">⭐ 星测Star-t · 天赋挖掘 ⭐</span>
+                        </div>
+                        <div style="background: linear-gradient(145deg, #f1ecff, #ffffff); border-radius: 28px; padding: 24px; text-align: center;">
+                            <div style="font-size: 48px; font-weight: 800; color: #3a1f6a;">${primary}</div>
+                            <div style="font-size: 24px; font-weight: 700; color: #2d1b4e; margin: 8px 0;">${detail.title}</div>
+                            <div style="height: 2px; width: 60px; background: #6c4eff; margin: 16px auto;"></div>
+                            <div style="font-size: 16px; color: #4a3a6a; text-align: left; margin: 16px 0;">
+                                <p style="font-weight: 600; margin-bottom: 8px;">🚀 适合副业：</p>
+                                <ul style="padding-left: 20px; margin: 8px 0;">
+                                    ${detail.directions.slice(0, 3).map(d => `<li style="margin-bottom: 6px;">🔹 ${d}</li>`).join('')}
+                                </ul>
+                                <p style="font-weight: 600; margin: 12px 0 8px;">📚 推荐阅读：</p>
+                                ${detail.books.slice(0, 2).map(b => `<div style="margin-bottom: 6px; font-size: 14px;">· ${b.title} (${b.author})</div>`).join('')}
+                            </div>
+                            <div style="font-style: italic; color: #6f5ea0; font-size: 14px; padding: 12px; background: #f8f5ff; border-radius: 16px; margin-top: 12px;">
+                                “${detail.quote}”
+                            </div>
+                        </div>
+                        <div style="text-align: center; margin-top: 16px; font-size: 12px; color: #a294c0;">
+                            ✨ 扫码测你的隐藏天赋 · 星测Star-t
+                        </div>
+                    </div>
+                `;
+
+                posterArea.innerHTML = posterHtml;
+                const element = posterArea.firstElementChild;
+                
+                try {
+                    const canvas = await html2canvas(element, {
+                        scale: 2,
+                        backgroundColor: '#ffffff',
+                        logging: false,
+                        allowTaint: false,
+                        useCORS: true
+                    });
+                    
+                    // 创建下载链接
+                    const link = document.createElement('a');
+                    link.download = `星测Star-t_${primary}天赋.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    
+                    // 清理
+                    posterArea.innerHTML = '';
+                } catch (error) {
+                    alert('海报生成失败，请重试');
+                    console.error(error);
+                }
+            }
+
+            render();
+        })();
+    </script>
+</body>
+</html>
